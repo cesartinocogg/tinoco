@@ -8,6 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <meta name="theme-color" content="#070606">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tinoco">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="icon" href="favicon.ico" />
@@ -199,6 +205,40 @@
             border-radius: 999px;
             transition: width .6s cubic-bezier(.4,0,.2,1);
         }
+
+        /* ===== ART DECO + APP MÓVIL ===== */
+        :root { --g: linear-gradient(#FFEA00,#FFEA00); }
+        html { -webkit-text-size-adjust: 100%; }
+        body { -webkit-tap-highlight-color: transparent; touch-action: manipulation; min-height: 100dvh; }
+        header { background-image: repeating-linear-gradient(45deg, rgba(212,175,55,.08) 0 1px, transparent 1px 14px), repeating-linear-gradient(-45deg, rgba(212,175,55,.08) 0 1px, transparent 1px 14px); padding-top: calc(.75rem + env(safe-area-inset-top, 0px)) !important; }
+        .art-deco-card, .rounded-2xl, .rounded-xl, .rounded-lg, button:not(.rounded-full), input, select, textarea { border-radius: 3px !important; }
+        .art-deco-card::after { content: ''; position: absolute; inset: 5px; pointer-events: none; opacity: .75; background-repeat: no-repeat;
+            background-image: var(--g), var(--g), var(--g), var(--g), var(--g), var(--g), var(--g), var(--g);
+            background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+            background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px; }
+        .section-title::before { content: '\25C6'; margin-right: .7em; font-size: .7em; color: #D4AF37; }
+        .section-title::after { content: '\25C6'; margin-left: .7em; font-size: .7em; color: #D4AF37; }
+        .deco-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: .6rem 1.2rem; font: 800 .72rem 'Cinzel', serif; letter-spacing: .2em; text-transform: uppercase; color: #1a1405; background: linear-gradient(135deg,#FFF5D1,#FFEA00 45%,#D4AF37); clip-path: polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px); border-radius: 0 !important; }
+        .deco-btn.alt { color: #FFEA00; background: rgba(255,234,0,.08); box-shadow: inset 0 0 0 1px rgba(255,234,0,.45); }
+        .deco-btn.grn { background: linear-gradient(135deg,#B9F6CA,#00E676 55%,#00A152); }
+        #fabSave { display: none; }
+        #toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .25s; z-index: 70; background: #12100f; border: 1px solid #FFEA00; color: #FFEA00; font: 700 12px 'Plus Jakarta Sans', sans-serif; padding: 10px 16px; letter-spacing: .05em; }
+        #toast.show { opacity: 1; transform: translate(-50%, 0); }
+        @media (max-width: 639px) {
+            body { overscroll-behavior-y: none; }
+            header p { display: none; }
+            header h1 { font-size: 1.25rem; letter-spacing: .2em; }
+            header > div > div:last-child { display: none; }
+            input, select, textarea { font-size: 16px !important; min-height: 46px; }
+            button, label[title] { min-height: 44px; }
+            main { padding: 12px !important; padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important; }
+            main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .fixed.inset-0.z-50 { align-items: flex-end !important; padding: 0 !important; }
+            .fixed.inset-0.z-50 > div { max-width: none !important; width: 100%; max-height: 90dvh; overflow-y: auto; border-radius: 18px 18px 0 0 !important; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)); }
+            .tab-mobile-btn { flex: 1; min-width: 0; position: relative; }
+            .tab-mobile-btn.tab-active::before { content: ''; position: absolute; top: -7px; left: 22%; right: 22%; height: 2px; background: #FFEA00; box-shadow: 0 0 8px #FFEA00; }
+            #fabSave { display: grid; position: fixed; right: 16px; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); z-index: 45; width: 54px; height: 54px; place-items: center; border-radius: 50% !important; min-height: 0; color: #1a1405; background: linear-gradient(135deg,#FFF5D1,#FFEA00 45%,#D4AF37); box-shadow: 0 0 0 2px #070606, 0 0 0 3px #FFEA00, 0 8px 22px rgba(0,0,0,.7); }
+        }
     </style>
 </head>
 
@@ -235,7 +275,8 @@
                     </select>
                 </div>
 
-                <div class="flex items-center space-x-2">
+                <div id="hdrActions" class="hidden sm:flex items-center space-x-2">
+                    <button onclick="exportExcel()" title="Exportar a Excel" aria-label="Exportar a Excel" class="p-2 rounded-lg bg-stone-900 border border-neonGreen/40 text-neonGreen hover:border-neonGreen transition"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
                     <button onclick="exportData()" title="Exportar JSON" aria-label="Exportar JSON" class="p-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-300 hover:text-neonGold hover:border-neonGold/50 transition">
                         <i data-lucide="download" class="w-4 h-4"></i>
                     </button>
@@ -274,10 +315,14 @@
             <button onclick="switchTab('investments')" id="tab-desktop-investments" class="tab-desktop-btn flex items-center space-x-2 px-4 py-3 rounded-t-xl font-bold text-xs uppercase tracking-wider transition-all text-stone-400 hover:text-neonPurple">
                 <i data-lucide="trending-up" class="w-4 h-4 text-neonPurple"></i><span>Inversiones</span>
             </button>
+            <button onclick="switchTab('months')" id="tab-desktop-months" class="tab-desktop-btn flex items-center space-x-2 px-4 py-3 rounded-t-xl font-bold text-xs uppercase tracking-wider transition-all text-stone-400 hover:text-neonGold">
+                <i data-lucide="calendar" class="w-4 h-4 text-neonGold"></i><span>Meses</span>
+            </button>
         </nav>
 
         <!-- ================= VIEW: DASHBOARD (REDISEÑADO) ================= -->
         <section id="view-dashboard" class="view-panel space-y-5">
+            <div id="deficitAlert" class="hidden art-deco-card p-3 items-center gap-2 text-xs font-bold text-neonRed" style="border-color:rgba(255,45,85,.6)"><i data-lucide="alert-triangle" class="w-4 h-4 flex-none"></i><span id="deficitText"></span></div>
 
             <!-- ROW 1: KPI Cards con mini-barras -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -730,6 +775,32 @@
                 </div>
             </div>
         </section>
+    
+        <section id="view-months" class="view-panel hidden space-y-5">
+            <div class="art-deco-card p-4 sm:p-6">
+                <h2 class="section-title font-serif font-black text-sm gold-gradient-text mb-1">Control mensual</h2>
+                <p class="text-[11px] text-stone-400 mb-4">Guarda cada mes para conservar tu sueldo, gastos, ahorro e inversión y ver cómo evolucionas.</p>
+                <div class="flex flex-col sm:flex-row gap-3 sm:items-end">
+                    <div class="flex-1">
+                        <label for="monthPick" class="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Mes a guardar</label>
+                        <input type="month" id="monthPick" class="w-full mt-1 bg-stone-900 border border-neonGold/40 px-3 py-2.5 text-sm text-stone-100 outline-none font-serif">
+                    </div>
+                    <button onclick="saveMonth()" class="deco-btn"><i data-lucide="calendar-check" class="w-4 h-4"></i>Guardar mes</button>
+                </div>
+            </div>
+            <div id="monthKpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+            <div class="art-deco-card p-4"><div class="h-56 sm:h-72"><canvas id="chartMonths"></canvas></div></div>
+            <div id="monthList" class="space-y-3"></div>
+            <div class="art-deco-card p-4">
+                <h3 class="section-title font-serif font-black text-xs gold-gradient-text mb-3">Datos y respaldo</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportExcel()" class="deco-btn grn col-span-2"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i>Exportar a Excel</button>
+                    <button onclick="exportData()" class="deco-btn alt">Exportar JSON</button>
+                    <label class="deco-btn alt cursor-pointer">Importar JSON<input type="file" accept=".json" class="hidden" onchange="importData(event)"></label>
+                    <button onclick="resetData()" class="deco-btn alt col-span-2" style="color:#FF2D55;box-shadow:inset 0 0 0 1px rgba(255,45,85,.5)">Restablecer plan (conserva meses)</button>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- ================= MODAL: DEPOSIT AHORRO ================= -->
@@ -884,6 +955,8 @@
         </div>
     </div>
 
+    <button id="fabSave" onclick="saveMonth()" aria-label="Guardar mes"><i data-lucide="calendar-check" class="w-6 h-6"></i></button>
+
     <!-- ================= MOBILE NAV ================= -->
     <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-stone-950/95 border-t border-decoGold/30 backdrop-blur-md px-1.5 py-1.5 mobile-nav-bar">
         <div class="flex justify-around items-center text-center">
@@ -904,6 +977,9 @@
             </button>
             <button onclick="switchTab('investments')" id="tab-mobile-investments" class="tab-mobile-btn flex flex-col items-center py-1 px-1.5 text-stone-400">
                 <i data-lucide="trending-up" class="w-5 h-5"></i><span class="text-[9px] mt-0.5 font-bold">Inversión</span>
+            </button>
+            <button onclick="switchTab('months')" id="tab-mobile-months" class="tab-mobile-btn flex flex-col items-center py-1 px-1.5 text-stone-400">
+                <i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[9px] mt-0.5 font-bold">Meses</span>
             </button>
         </div>
     </nav>
@@ -1012,7 +1088,7 @@
 
             const taxes = Array.isArray(raw.taxes)
                 ? raw.taxes.filter(t => t && typeof t === 'object' && t.name)
-                    .map(t => ({ id: safeId(t.id), name: String(t.name), type: t.type === 'fixed' ? 'fixed' : 'percentage', value: safeNumber(t.value) }))
+                    .map(t => ({ id: safeId(t.id), name: String(t.name), type: t.type === 'fixed' ? 'fixed' : 'percentage', value: t.type === 'fixed' ? safeNumber(t.value) : Math.min(100, safeNumber(t.value)) }))
                 : deepClone(base.taxes);
 
             const expenses = Array.isArray(raw.expenses)
@@ -1048,7 +1124,7 @@
                     })
                 : deepClone(base.investments);
 
-            return { currency, grossIncome: safeNumber(raw.grossIncome), taxes, expenses, savingsGoals, investments };
+            return { currency, grossIncome: safeNumber(raw.grossIncome), taxes, expenses, savingsGoals, investments, months: sanitizeMonths(raw.months) };
         }
 
         /* ------------------------------------------------------------------
@@ -1107,6 +1183,7 @@
         ------------------------------------------------------------------ */
         function switchTab(tabName) {
             activeTab = tabName;
+            if (tabName === 'months') setTimeout(() => { renderMonths(); if (chartMonths) chartMonths.resize(); }, 60);
             document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
             const target = document.getElementById(`view-${tabName}`);
             if (target) target.classList.remove('hidden');
@@ -1146,9 +1223,10 @@
                 if (t.type === 'percentage') totalTaxes += gross * ((Number(t.value) || 0) / 100);
                 else totalTaxes += Number(t.value) || 0;
             });
-            const netIncome = Math.max(0, gross - totalTaxes);
+            totalTaxes = Math.min(totalTaxes, gross);
+            const netIncome = gross - totalTaxes;
             const totalExpenses = state.expenses.reduce((a, c) => a + (Number(c.amount) || 0), 0);
-            const totalSavingsMonthly = state.savingsGoals.reduce((a, c) => a + (Number(c.monthly) || 0), 0);
+            const totalSavingsMonthly = state.savingsGoals.reduce((a, c) => a + Math.min(Number(c.monthly) || 0, Math.max(0, (Number(c.target) || 0) - (Number(c.current) || 0))), 0);
             const totalInvestMonthly = state.investments.reduce((a, c) => a + (Number(c.monthlyContrib) || 0), 0);
             const totalPortfolioValue = state.investments.reduce((a, c) => a + (Number(c.currentVal) || 0), 0);
             const rawRemaining = netIncome - totalExpenses - totalSavingsMonthly - totalInvestMonthly;
@@ -1157,7 +1235,7 @@
             return {
                 gross, taxAmount: totalTaxes, netIncome,
                 totalExpenses, totalSavingsMonthly, totalInvestMonthly, totalPortfolioValue,
-                remaining, rawRemaining,
+                remaining, rawRemaining, deficit: Math.max(0, -rawRemaining),
                 expenseRatio: netIncome > 0 ? ((totalExpenses / netIncome) * 100).toFixed(1) : '0.0',
                 savingsRatio: netIncome > 0 ? ((totalSavingsMonthly / netIncome) * 100).toFixed(1) : '0.0',
                 investRatio: netIncome > 0 ? ((totalInvestMonthly / netIncome) * 100).toFixed(1) : '0.0',
@@ -1169,7 +1247,7 @@
            8. GUARDADO Y RENDER
         ------------------------------------------------------------------ */
         function saveState() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn('No se pudo guardar', e); }
             renderAllViews();
             updateCharts();
         }
@@ -1257,6 +1335,7 @@
 
         function renderAllViews() {
             const totals = getCalculatedTotals();
+            try { renderExtras(totals); } catch (e) { console.error(e); }
 
             /* Ingresos */
             document.getElementById('calcTaxAmount').textContent = formatCurrency(totals.taxAmount);
@@ -1984,7 +2063,7 @@
             reader.onload = function (e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    state = sanitizeState(parsed);
+                    const prevMonths = state.months; state = sanitizeState(parsed); if (!Array.isArray(parsed.months)) state.months = prevMonths;
                     initCurrenciesUI();
                     updateInputsFromState();
                     saveState();
@@ -1999,11 +2078,144 @@
         }
 
         function resetData() {
-            if (!confirm('¿Restablecer todos los datos a los valores de ejemplo?')) return;
+            if (!confirm('¿Restablecer el plan a los valores de ejemplo? Tu historial de meses se conserva.')) return;
+            const prevMonths = state.months;
             state = sanitizeState(deepClone(DEFAULT_STATE));
+            state.months = prevMonths || [];
             initCurrenciesUI();
             updateInputsFromState();
             saveState();
+        }
+
+                /* ------------------------------------------------------------------
+           CONTROL MENSUAL + EXCEL
+        ------------------------------------------------------------------ */
+        function sanitizeMonths(a) {
+            if (!Array.isArray(a)) return [];
+            const seen = {};
+            const pairs = v => Array.isArray(v) ? v.slice(0, 200).filter(Array.isArray).map(x => [String(x[0] || '').slice(0, 80), safeNumber(x[1])]) : [];
+            return a.filter(m => m && /^\d{4}-(0[1-9]|1[0-2])$/.test(m.key) && !seen[m.key] && (seen[m.key] = 1)).map(m => ({
+                key: m.key, cur: CURRENCIES[m.cur] ? m.cur : 'EUR',
+                gross: safeNumber(m.gross), taxes: safeNumber(m.taxes), net: safeNumber(m.net),
+                expenses: safeNumber(m.expenses), savings: safeNumber(m.savings), invest: safeNumber(m.invest),
+                free: Number(m.free) || 0, applied: !!m.applied, savedAt: String(m.savedAt || ''),
+                exp: pairs(m.exp), tax: pairs(m.tax)
+            })).sort((x, y) => x.key < y.key ? -1 : 1);
+        }
+        let chartMonths;
+        function curMonthKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+        function monthLabel(k) { const p = k.split('-'); const t = new Date(+p[0], +p[1] - 1, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); }
+        function money(v, cur) { const c = CURRENCIES[cur] || CURRENCIES[state.currency] || CURRENCIES.EUR; return c.symbol + ' ' + (Number(v) || 0).toLocaleString(c.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function toast(msg) { let el = document.getElementById('toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); } el.textContent = msg; el.className = 'show'; clearTimeout(el._t); el._t = setTimeout(() => { el.className = ''; }, 2400); }
+
+        function applyContributions(label) {
+            state.savingsGoals.forEach(g => {
+                const add = Math.min(g.monthly, Math.max(0, g.target - g.current));
+                if (add > 0) { g.current += add; g.history.unshift({ id: uid(), date: nowLabel(), amount: add, note: 'Aporte ' + label }); }
+            });
+            state.investments.forEach(i => {
+                if (i.monthlyContrib > 0) { i.currentVal += i.monthlyContrib; i.history.unshift({ id: uid(), date: nowLabel(), amount: i.monthlyContrib, note: 'Aporte ' + label }); }
+            });
+        }
+
+        function saveMonth() {
+            const pick = document.getElementById('monthPick');
+            const key = (pick && pick.value) || curMonthKey();
+            if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(key)) { alert('Elige el mes que quieres guardar.'); return; }
+            if (!Array.isArray(state.months)) state.months = [];
+            const t = getCalculatedTotals();
+            if (t.gross <= 0) { alert('Ingresa tu sueldo bruto antes de guardar el mes.'); return; }
+            const prev = state.months.find(m => m.key === key);
+            if (prev && !confirm(monthLabel(key) + ' ya está guardado. ¿Actualizarlo con los valores actuales?')) return;
+            let applied = !!(prev && prev.applied);
+            if (!applied && (t.totalSavingsMonthly > 0 || t.totalInvestMonthly > 0) &&
+                confirm('¿Sumar los aportes de ' + monthLabel(key) + ' a tus metas de ahorro e inversiones?\n\nAceptar: sumarlos\nCancelar: guardar solo el registro')) {
+                applyContributions(monthLabel(key)); applied = true;
+            }
+            const rec = {
+                key, cur: state.currency, gross: t.gross, taxes: t.taxAmount, net: t.netIncome,
+                expenses: t.totalExpenses, savings: t.totalSavingsMonthly, invest: t.totalInvestMonthly,
+                free: t.rawRemaining, applied, savedAt: nowLabel(),
+                exp: state.expenses.map(e => [e.name, e.amount]),
+                tax: state.taxes.map(x => [x.name, x.type === 'percentage' ? t.gross * x.value / 100 : x.value])
+            };
+            state.months = state.months.filter(m => m.key !== key).concat(rec).sort((a, b) => a.key < b.key ? -1 : 1);
+            saveState();
+            toast('Mes guardado: ' + monthLabel(key));
+        }
+
+        function deleteMonth(key) {
+            if (!confirm('¿Eliminar ' + monthLabel(key) + ' del historial? Los aportes ya sumados a metas e inversiones no se revierten.')) return;
+            state.months = state.months.filter(m => m.key !== key);
+            saveState();
+        }
+
+        function renderExtras(t) {
+            const a = document.getElementById('deficitAlert');
+            if (a) {
+                a.classList.toggle('hidden', !(t.deficit > 0));
+                const sp = document.getElementById('deficitText');
+                if (sp) sp.textContent = 'Tu plan supera tu sueldo neto por ' + formatCurrency(t.deficit) + '. Reduce gastos, ahorro o inversión.';
+            }
+            renderMonths();
+        }
+
+        function renderMonths() {
+            if (!Array.isArray(state.months)) state.months = [];
+            const pick = document.getElementById('monthPick');
+            if (pick && !pick.value) pick.value = curMonthKey();
+            const ms = state.months.filter(m => m.cur === state.currency), n = ms.length;
+            const sum = k => ms.reduce((a, m) => a + m[k], 0);
+            const kp = document.getElementById('monthKpis');
+            if (kp) kp.innerHTML = [
+                ['Meses guardados', String(n), '#FFEA00'],
+                ['Neto acumulado', money(sum('net')), '#00E676'],
+                ['Promedio mensual', money(n ? sum('net') / n : 0), '#2979FF'],
+                ['Ahorro + inversión', money(sum('savings') + sum('invest')), '#00E5FF']
+            ].map(x => `<div class="art-deco-card p-3"><p class="text-[9px] uppercase tracking-widest font-extrabold text-stone-400">${x[0]}</p><p class="font-serif font-black text-base sm:text-lg mt-1 break-words" style="color:${x[2]}">${x[1]}</p></div>`).join('');
+
+            const list = document.getElementById('monthList');
+            if (list) list.innerHTML = state.months.length ? [...state.months].reverse().map(m => {
+                const lib = m.free < 0 ? ['Déficit', '#FF2D55'] : ['Libre', '#FFEA00'];
+                const cell = (l, v, c) => `<div><p class="text-[9px] uppercase tracking-wider text-stone-500 font-bold">${l}</p><p class="font-serif font-bold text-xs" style="color:${c}">${money(v, m.cur)}</p></div>`;
+                return `<div class="art-deco-card p-4"><div class="flex items-start justify-between gap-2 mb-3"><div><p class="font-serif font-black tracking-widest text-sm gold-gradient-text">${escapeHtml(monthLabel(m.key))}</p><p class="text-[10px] text-stone-500">Guardado ${escapeHtml(m.savedAt)}${m.applied ? ' · aportes aplicados' : ''}</p></div><div class="text-right"><p class="text-[9px] uppercase tracking-wider text-stone-500 font-bold">Sueldo neto</p><p class="font-serif font-black text-lg text-neonGreen">${money(m.net, m.cur)}</p></div></div><div class="grid grid-cols-3 gap-x-3 gap-y-2">${cell('Bruto', m.gross, '#d6d3d1')}${cell('Impuestos', m.taxes, '#FF2D55')}${cell('Gastos', m.expenses, '#FF9100')}${cell('Ahorro', m.savings, '#00E5FF')}${cell('Inversión', m.invest, '#D500F9')}${cell(lib[0], Math.abs(m.free), lib[1])}</div><button onclick="deleteMonth('${m.key}')" class="mt-3 text-[10px] uppercase tracking-widest font-bold text-stone-500 hover:text-neonRed">Eliminar mes</button></div>`;
+            }).join('') : '<p class="text-xs text-stone-500 text-center py-6">Aún no hay meses guardados. Elige un mes y pulsa «Guardar mes».</p>';
+
+            const cv = document.getElementById('chartMonths');
+            if (!cv || typeof Chart === 'undefined') return;
+            const data = ms.slice(-12);
+            const labels = data.map(m => monthLabel(m.key).slice(0, 3) + ' ' + m.key.slice(2, 4));
+            const ds = [['Neto', 'net', '#00E676'], ['Gastos', 'expenses', '#FF9100'], ['Ahorro', 'savings', '#00E5FF'], ['Inversión', 'invest', '#D500F9']]
+                .map(x => ({ label: x[0], data: data.map(m => m[x[1]]), backgroundColor: x[2], borderRadius: 3 }));
+            ds.push({ type: 'line', label: 'Libre', data: data.map(m => m.free), borderColor: '#FFEA00', backgroundColor: '#FFEA00', tension: .3, pointRadius: 3 });
+            if (!chartMonths) {
+                chartMonths = new Chart(cv.getContext('2d'), {
+                    type: 'bar', data: { labels, datasets: ds },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#a8a29e', boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatCurrency(c.raw)}` } } },
+                        scales: { x: { ticks: { color: '#a8a29e' }, grid: { display: false } }, y: { ticks: { color: '#a8a29e', callback: v => Math.abs(v) >= 1000 ? (v / 1000) + 'k' : v }, grid: { color: 'rgba(255,255,255,.07)' } } }
+                    }
+                });
+            } else { chartMonths.data.labels = labels; chartMonths.data.datasets = ds; chartMonths.update(); }
+        }
+
+        function exportExcel() {
+            if (typeof XLSX === 'undefined') { alert('No se pudo cargar la librería de Excel. Revisa tu conexión.'); return; }
+            const t = getCalculatedTotals(), cur = state.currency, ms = state.months || [], wb = XLSX.utils.book_new();
+            const add = (name, rows, w) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = w.map(x => ({ wch: x })); XLSX.utils.book_append_sheet(wb, ws, name); };
+            const hist = [['Mes', 'Moneda', 'Sueldo bruto', 'Impuestos', 'Sueldo neto', 'Gastos', 'Ahorro', 'Inversión', 'Libre / (Déficit)', '% Ahorro+Inversión', 'Aportes aplicados']];
+            ms.forEach(m => hist.push([monthLabel(m.key), m.cur, m.gross, m.taxes, m.net, m.expenses, m.savings, m.invest, m.free, m.net > 0 ? +(((m.savings + m.invest) / m.net) * 100).toFixed(1) : 0, m.applied ? 'Sí' : 'No']));
+            const same = ms.filter(m => m.cur === cur), S = k => same.reduce((a, m) => a + m[k], 0);
+            if (same.length) hist.push(['TOTAL (' + cur + ')', cur, S('gross'), S('taxes'), S('net'), S('expenses'), S('savings'), S('invest'), S('free'), '', '']);
+            add('Historial mensual', hist, [18, 8, 14, 12, 14, 12, 12, 12, 16, 18, 16]);
+            add('Mes actual', [['Concepto', 'Monto (' + cur + ')'], ['Sueldo bruto', t.gross], ['Impuestos', -t.taxAmount], ['Sueldo neto', t.netIncome], ['Gastos', -t.totalExpenses], ['Ahorro', -t.totalSavingsMonthly], ['Inversión', -t.totalInvestMonthly], ['Libre / (Déficit)', t.rawRemaining], [], ['GASTOS'], ...state.expenses.map(e => [e.name, e.amount]), [], ['IMPUESTOS'], ...state.taxes.map(x => [x.name, x.type === 'percentage' ? x.value + '%' : x.value])], [34, 18]);
+            add('Ahorro', [['Meta', 'Objetivo', 'Acumulado', 'Aporte mensual', 'Progreso %'], ...state.savingsGoals.map(g => [g.name, g.target, g.current, g.monthly, g.target > 0 ? +Math.min(100, g.current / g.target * 100).toFixed(1) : 0])], [28, 14, 14, 16, 12]);
+            add('Inversiones', [['Activo', 'Valor actual', 'Aporte mensual'], ...state.investments.map(i => [i.name, i.currentVal, i.monthlyContrib])], [28, 16, 16]);
+            const det = [['Mes', 'Tipo', 'Concepto', 'Monto']];
+            ms.forEach(m => { (m.tax || []).forEach(x => det.push([monthLabel(m.key), 'Impuesto', x[0], x[1]])); (m.exp || []).forEach(x => det.push([monthLabel(m.key), 'Gasto', x[0], x[1]])); });
+            if (det.length > 1) add('Detalle por mes', det, [18, 12, 36, 14]);
+            XLSX.writeFile(wb, 'Tinoco_Control_' + new Date().toISOString().slice(0, 10) + '.xlsx');
         }
 
         /* ------------------------------------------------------------------
